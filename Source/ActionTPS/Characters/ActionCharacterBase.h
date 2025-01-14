@@ -25,8 +25,7 @@ class ACTIONTPS_API AActionCharacterBase : public ACharacter, public IAbilitySys
 public:
 	// Sets default values for this character's properties
 	AActionCharacterBase();
-
-#pragma region GAS getter functions
+	
 	//~ Begin IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	//~ End IAbilitySystemInterface
@@ -42,7 +41,6 @@ public:
 		return Cast<T>(GetAttributeSet());
 	}
 	//~ End Getters for ActionAttributeSet
-#pragma endregion;
 	
 	//~ Begin APawn Interface.
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -52,9 +50,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Combat|Trace")
 	FVector GetCameraViewTraceLocations(float InDistance);
 	UFUNCTION(BlueprintCallable, Category = "Combat|Trace")
-	void TraceSingleHitResultFromLocationToCameraView(FHitResult& OutHitResult, float InDistance, const FVector& InTraceStart, const bool bTraceComplex, const TArray<AActor*>& InIgnoredActors);
+	void TraceSingleHitResultFromLocationToCameraView(FHitResult& OutHitResult, const FVector& InTraceStart, const bool bTraceComplex, const TArray<AActor*>& InIgnoredActors, float InDistance = 50000.f);
 	UFUNCTION(BlueprintCallable, Category = "Combat|Trace")
-	void TraceMultiHitResultsFromLocationToCameraView(TArray<FHitResult>& OutHitResult, float InDistance, const FVector& InTraceStart, const bool bTraceComplex, const TArray<AActor*>& InIgnoredActors);
+	void TraceMultiHitResultsFromLocationToCameraView(TArray<FHitResult>& OutHitResult, const FVector& InTraceStart, const bool bTraceComplex, const TArray<AActor*>& InIgnoredActors, float InDistance = 50000.f);
 
 	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Combat")
 	FVector GetCombatSocketLocation();

@@ -130,7 +130,7 @@ FVector AActionCharacterBase::GetCameraViewTraceLocations(const float InDistance
 	return CameraHitResult.bBlockingHit ? CameraHitResult.Location : CameraHitResult.TraceEnd;
 }
 
-void AActionCharacterBase::TraceSingleHitResultFromLocationToCameraView(FHitResult& OutHitResult, const float InDistance, const FVector& InTraceStart, const bool bTraceComplex, const TArray<AActor*>& InIgnoredActors)
+void AActionCharacterBase::TraceSingleHitResultFromLocationToCameraView(FHitResult& OutHitResult, const FVector& InTraceStart, const bool bTraceComplex, const TArray<AActor*>& InIgnoredActors, const float InDistance)
 {
 	if(!GetWorld())
 	{
@@ -145,8 +145,8 @@ void AActionCharacterBase::TraceSingleHitResultFromLocationToCameraView(FHitResu
 	GetWorld()->LineTraceSingleByChannel(OutHitResult, InTraceStart, TraceEnd, ECC_Traceable, CollisionQueryParams);	
 }
 
-void AActionCharacterBase::TraceMultiHitResultsFromLocationToCameraView(TArray<FHitResult>& OutHitResult, float InDistance,
-	const FVector& InTraceStart, const bool bTraceComplex, const TArray<AActor*>& InIgnoredActors)
+void AActionCharacterBase::TraceMultiHitResultsFromLocationToCameraView(TArray<FHitResult>& OutHitResult, const FVector& InTraceStart,
+                                                                        const bool bTraceComplex, const TArray<AActor*>& InIgnoredActors, float InDistance)
 {
 	if(!GetWorld())
 	{

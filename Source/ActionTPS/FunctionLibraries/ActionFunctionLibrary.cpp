@@ -5,6 +5,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/ActionAbilitySystemComponent.h"
 #include "GameTypes/ActionEnumTypes.h"
+#include "Kismet/KismetMathLibrary.h"
 
 UActionAbilitySystemComponent* UActionFunctionLibrary::NativeGetActionAbilitySystemComponentFromActor(AActor* InActor)
 {
@@ -41,4 +42,12 @@ void UActionFunctionLibrary::BP_DoesActorHaveType(AActor* InActor, FGameplayTag 
 	EActionConfirmType& OutConfirmType)
 {
 	OutConfirmType = NativeDoesActorHaveTag(InActor, InGameplayTag) ? EActionConfirmType::Yes : EActionConfirmType::No;
+}
+
+FTransform UActionFunctionLibrary::GetHitTransformIfExist(const FHitResult& InHitResult)
+{
+	const FVector StartHit = InHitResult.TraceStart;
+	const FVector EndHit = InHitResult.bBlockingHit ? InHitResult.ImpactPoint : InHitResult.TraceEnd;
+	const FRotator LookRotation = UKismetMathLibrary::FindLookAtRotation(StartHit, EndHit);
+	return FTransform(LookRotation, StartHit);
 }

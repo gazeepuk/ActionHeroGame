@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/ActionAbilitySystemComponent.h"
 #include "Characters/ActionCharacterBase.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Items/Projectiles/ActionProjectileBase.h"
 
 void UActionGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
@@ -35,26 +36,71 @@ void UActionGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	}
 }
 
-AActor* UActionGameplayAbility::SpawnActorByClass(TSubclassOf<AActor> InActorClass, const FTransform& ActorTransform,
-	AActor* InOwner, APawn* InInstigator, bool bSpawnOnlyOnServer)
+AActor* UActionGameplayAbility::SpawnActorByClass(TSubclassOf<AActor> InActorClass, const FTransform& InActorTransform, bool bSpawnOnlyOnServer)
 {
-
-	const FGameplayAbilityActivationInfo AbilityActivationInfo = GetCurrentActivationInfo();
-
-	if(bSpawnOnlyOnServer && !HasAuthority(&AbilityActivationInfo))
-	{
-		return nullptr;
-	}
-
 	if(!GetWorld())
 	{
 		return nullptr;
 	}
 
-	AActor* SpawnedActor = GetWorld()->SpawnActorDeferred<AActor>(InActorClass, ActorTransform, InOwner, InInstigator, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-	SpawnedActor->FinishSpawning(ActorTransform);
+	const FGameplayAbilityActivationInfo AbilityActivationInfo = GetCurrentActivationInfo();
 
+	// Returns nullptr if spawns on Client and bSpawnOnlyOnServer is true
+	if(bSpawnOnlyOnServer && !HasAuthority(&AbilityActivationInfo))
+	{
+		return nullptr;
+	}
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Instigator = GetActionCharacterFromAvatarActor();
+	SpawnParameters.Owner = GetActionCharacterFromAvatarActor();
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+	AActor* SpawnedActor = GetWorld()->SpawnActor(InActorClass, &InActorTransform, SpawnParameters);
+	
 	return SpawnedActor;
+}
+
+AActionProjectileBase* UActionGameplayAbility::SpawnProjectileByClass(TSubclassOf<AActionProjectileBase> InProjectileClass,
+                                                                      const FTransform& InProjectileTransform, const float InMaxSpeed, const float InGravityScale, const FGameplayEffectSpec&
+                                                                      InProjectileGameplayEffectSpec, bool bSpawnOnlyOnServer)
+{
+	if(!GetWorld())
+	{
+		return nullptr;
+	}
+
+	const FGameplayAbilityActivationInfo AbilityActivationInfo = GetCurrentActivationInfo();
+	if(bSpawnOnlyOnServer && !HasAuthority(&AbilityActivationInfo))
+	{
+		return nullptr;
+	}
+	
+AActionProjectileBase* ProjectileBase = GetWorld()->SpawnActorDeferred<AActionProjectileBase>(
+		InProjectileClass,
+		InProjectileTransform,
+		GetActionCharacterFromAvatarActor(),
+		GetActionCharacterFromAvatarActor(),
+		ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+		);
+
+	ProjectileBase->SetProjectileGameplayEffectSpec(InProjectileGameplayEffectSpec);
+
+	ProjectileBase->ProjectileMovementComponent->ProjectileGravityScale = InGravityScale;
+	
+	ProjectileBase->FinishSpawning(InProjectileTransform);
+
+	if(HasAuthority(&AbilityActivationInfo))
+	{
+		ProjectileBase->LaunchProjectileForward(InMaxSpeed);
+		ProjectileBase->ClientLaunchProjectileForward(InMaxSpeed);
+	}
+	else
+	{
+		ProjectileBase->ServerLaunchProjectileForward(InMaxSpeed);
+	}
+	
+	return ProjectileBase;
 }
 
 AActionCharacterBase* UActionGameplayAbility::GetActionCharacterFromAvatarActor() const

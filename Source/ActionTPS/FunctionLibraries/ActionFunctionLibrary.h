@@ -31,4 +31,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ActionTPS|FunctionLibrary", meta = (DisplayName = "Does Actor Have Tag", ExpandEnumAsExecs = "OutConfirmType"))
 	static void BP_DoesActorHaveType(AActor* InActor, FGameplayTag InGameplayTag, EActionConfirmType& OutConfirmType);
+
+	UFUNCTION(BlueprintCallable, Category = "ActionTPS|FunctionLibrary")
+	static FTransform GetHitTransformIfExist(const FHitResult& InHitResult);
 };

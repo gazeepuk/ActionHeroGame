@@ -6,6 +6,8 @@
 #include "Abilities/GameplayAbility.h"
 #include "ActionGameplayAbility.generated.h"
 
+class AActionProjectileBase;
+
 UENUM()
 enum class EActionAbilityActivationPolicy : uint8
 {
@@ -30,7 +32,10 @@ protected:
 	//~ End UGameplayAbility Interface
 
 	UFUNCTION(BlueprintCallable)
-	AActor* SpawnActorByClass(TSubclassOf<AActor> InActorClass, const FTransform& ActorTransform, AActor* InOwner, APawn* InInstigator, bool bSpawnOnlyOnServer);
+	AActor* SpawnActorByClass(TSubclassOf<AActor> InActorClass, const FTransform& InActorTransform, bool bSpawnOnlyOnServer);
+	UFUNCTION(BlueprintCallable)
+	AActionProjectileBase* SpawnProjectileByClass(TSubclassOf<AActionProjectileBase> InProjectileClass, const FTransform& InProjectileTransform, const float InMaxSpeed, const float InGravityScale, const
+	                                              FGameplayEffectSpec& InProjectileGameplayEffectSpec, bool bSpawnOnlyOnServer);
 	
 	UFUNCTION(BlueprintPure, Category = "ActionTPS|Abilitiy")
 	AActionCharacterBase* GetActionCharacterFromAvatarActor() const;

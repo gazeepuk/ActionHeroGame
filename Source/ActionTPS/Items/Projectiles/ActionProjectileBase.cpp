@@ -20,8 +20,6 @@ AActionProjectileBase::AActionProjectileBase()
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->SetIsReplicated(true);
-	ProjectileMovementComponent->InitialSpeed =	0.f;
-	ProjectileMovementComponent->MaxSpeed = 0.f;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 }
 
@@ -30,13 +28,21 @@ void AActionProjectileBase::SetProjectileGameplayEffectSpec(const FGameplayEffec
 	ProjectileGameplayEffectSpec = InGameplayEffectSpec;
 }
 
-void AActionProjectileBase::SetProjectileSpeed(const float InMaxSpeed, const float InGravityScale)
+void AActionProjectileBase::ServerLaunchProjectileForward_Implementation(float InLaunchSpeed)
 {
-	ProjectileMovementComponent->InitialSpeed = InMaxSpeed;
-	ProjectileMovementComponent->MaxSpeed = InMaxSpeed;
-	ProjectileMovementComponent->ProjectileGravityScale = InGravityScale;
-	ProjectileMovementComponent->Velocity = GetActorForwardVector() * InMaxSpeed;
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%f"), ProjectileMovementComponent->Velocity.Size()));
+	LaunchProjectileForward(InLaunchSpeed);
+	ClientLaunchProjectileForward(InLaunchSpeed);
+}
+
+void AActionProjectileBase::ClientLaunchProjectileForward_Implementation(float InLaunchSpeed)
+{
+	LaunchProjectileForward(InLaunchSpeed);
+}
+
+void AActionProjectileBase::LaunchProjectileForward(float InLaunchSpeed)
+{
+	ProjectileMovementComponent->MaxSpeed = InLaunchSpeed;
+	ProjectileMovementComponent->Velocity = GetActorForwardVector() * InLaunchSpeed;
 }
 
 void AActionProjectileBase::BeginPlay()

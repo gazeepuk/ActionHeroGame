@@ -21,10 +21,16 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 
-	UFUNCTION(BlueprintCallable, Category = "Ability|Projectile")
+	UFUNCTION(BlueprintCallable, Category = "Projectile")
 	void SetProjectileGameplayEffectSpec(const FGameplayEffectSpec& InGameplayEffectSpec);
-	UFUNCTION(BlueprintCallable, Category = "Ability|Projectile")
-	void SetProjectileSpeed(float InMaxSpeed = 700.f, float InGravityScale = 0.f);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Projectile")
+	void ServerLaunchProjectileForward(float InLaunchSpeed);
+	UFUNCTION(Client, Reliable, BlueprintCallable, Category = "Projectile")
+	void ClientLaunchProjectileForward(float InLaunchSpeed);
+	UFUNCTION(BlueprintCallable, Category = "Projectile")
+	void LaunchProjectileForward(float InLaunchSpeed);
+	
 protected:
 	virtual void BeginPlay() override;
 
